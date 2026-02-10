@@ -1,42 +1,78 @@
-import { Home, Video, History, Bookmark } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, BookOpen, Heart, History, Settings, LogOut, LayoutDashboard, Users, GraduationCap } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function Sidebar() {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const menuItems = [
-    { id: 'home', label: 'Home', icon: Home, path: '/' },
-    { id: 'courses', label: 'My Courses', icon: Video, path: '/videos' },
-    { id: 'watchlist', label: 'Watchlist', icon: Bookmark, path: '/watchlist' },
-    { id: 'history', label: 'History', icon: History, path: '/history' },
-  ];
-
-  const isActive = (path) => {
-    return location.pathname === path;
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
-  return (
-    <aside className="sidebar">
-      <div className="logo">
-        <div className="logo-icon">CDAC</div>
+  // For admin users, show only Home option
+  if (user?.role === 'admin') {
+    return (
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <span className="sidebar-logo">CDAC</span>
+        </div>
+        <nav className="sidebar-nav">
+          <NavLink to="/admin" className="nav-item">
+            <Home size={20} />
+            <span>Home</span>
+          </NavLink>
+        </nav>
+        <div className="sidebar-footer">
+          <NavLink to="/profile" className="nav-item">
+            <Settings size={20} />
+            <span>Profile</span>
+          </NavLink>
+          <button onClick={handleLogout} className="nav-item logout-btn">
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
-      <nav className="nav">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.id}
-              className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-              onClick={() => navigate(item.path)}
-            >
-              <Icon className="nav-icon" size={20} />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+    );
+  }
+
+  // For students, show full navigation
+  return (
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <span className="sidebar-logo">CDAC</span>
+      </div>
+      <nav className="sidebar-nav">
+        <NavLink to="/" className="nav-item">
+          <Home size={20} />
+          <span>Home</span>
+        </NavLink>
+        <NavLink to="/videos" className="nav-item">
+          <BookOpen size={20} />
+          <span>My Courses</span>
+        </NavLink>
+        <NavLink to="/watchlist" className="nav-item">
+          <Heart size={20} />
+          <span>Watchlist</span>
+        </NavLink>
+        <NavLink to="/history" className="nav-item">
+          <History size={20} />
+          <span>History</span>
+        </NavLink>
       </nav>
-    </aside>
+      <div className="sidebar-footer">
+        <NavLink to="/settings" className="nav-item">
+          <Settings size={20} />
+          <span>Settings</span>
+        </NavLink>
+        <button onClick={handleLogout} className="nav-item logout-btn">
+          <LogOut size={20} />
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
   );
 }
 

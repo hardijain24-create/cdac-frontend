@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Settings, Bell, User, LogOut, HelpCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 function Header() {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const accountDropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { user, logout, isAdmin } = useAuth();
 
   const accountMenuItems = [
     { icon: User, label: 'Profile', action: () => { navigate('/profile'); setShowAccountMenu(false); } },
     { icon: Settings, label: 'Settings', action: () => { navigate('/settings'); setShowAccountMenu(false); } },
     { icon: HelpCircle, label: 'Help', action: () => { navigate('/help'); setShowAccountMenu(false); } },
-    { icon: LogOut, label: 'Logout', action: () => { navigate('/login'); setShowAccountMenu(false); } },
+    { icon: LogOut, label: 'Logout', action: () => { logout(); setShowAccountMenu(false); } },
   ];
 
   useEffect(() => {
@@ -30,8 +32,13 @@ function Header() {
   return (
     <header className="header">
       <div className="welcome-section">
-        <h1 className="welcome-title">Welcome, Vedang!</h1>
-        <p className="welcome-subtitle">Revolutionize your future with CDAC</p>
+        <h1 className="welcome-title">
+          Welcome, {user?.name || 'User'}!
+          {isAdmin && <span className="admin-badge">Admin</span>}
+        </h1>
+        <p className="welcome-subtitle">
+          {isAdmin ? 'Managing CDAC Learning Platform' : 'Revolutionize your future with CDAC'}
+        </p>
       </div>
       
       <div className="header-actions">
@@ -39,7 +46,6 @@ function Header() {
           <Search className="search-icon" size={18} />
           <input type="text" placeholder="Search course/video/playlist" />
         </div>
-        
                 
         <button className="icon-button">
           <Bell size={20} />

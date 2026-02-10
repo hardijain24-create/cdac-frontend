@@ -2,6 +2,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import "./app.css";
 
 /* =======================
+   AUTH CONTEXT
+======================= */
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
+
+/* =======================
    AUTH PAGES
 ======================= */
 import StudentLogin from "./auth/StudentLogin";
@@ -19,6 +26,9 @@ import Sidebar from "./layouts/Sidebar";
    APP PAGES
 ======================= */
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProfile from "./pages/AdminProfile";
+import StudentProfile from "./pages/StudentProfile";
 import Videos from "./pages/Videos";
 import VideoList from "./pages/VideoList";
 import Watchlist from "./pages/Watchlist";
@@ -43,113 +53,157 @@ function AppLayout({ children }) {
   );
 }
 
+// Profile component that renders different profiles based on user role
+function ProfileRoutes() {
+  const { user } = useAuth();
+  
+  if (user?.role === 'admin') {
+    return <AdminProfile />;
+  } else {
+    return <StudentProfile />;
+  }
+}
+
 /* =======================
    MAIN APP
 ======================= */
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* ---------- AUTH ROUTES ---------- */}
-        <Route path="/login" element={<StudentLogin />} />
-        <Route path="/generate-otp" element={<GenerateOTP />} />
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* ---------- AUTH ROUTES ---------- */}
+          <Route path="/login" element={<StudentLogin />} />
+          <Route path="/generate-otp" element={<GenerateOTP />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* ---------- APP ROUTES ---------- */}
-        <Route
-          path="/"
-          element={
-            <AppLayout>
-              <Dashboard />
-            </AppLayout>
-          }
-        />
+          {/* ---------- APP ROUTES ---------- */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <AdminDashboard />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/videos"
-          element={
-            <AppLayout>
-              <Videos />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Dashboard />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/videos/list"
-          element={
-            <AppLayout>
-              <VideoList />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/videos"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Videos />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/videos/:id"
-          element={
-            <AppLayout>
-              <VideoList />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/videos/list"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <VideoList />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/watchlist"
-          element={
-            <AppLayout>
-              <Watchlist />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/videos/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <VideoList />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/history"
-          element={
-            <AppLayout>
-              <History />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/watchlist"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Watchlist />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile"
-          element={
-            <AppLayout>
-              <Profile />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <History />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/settings"
-          element={
-            <AppLayout>
-              <Settings />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ProfileRoutes />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/help"
-          element={
-            <AppLayout>
-              <Help />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/feedback"
-          element={
-            <AppLayout>
-              <Feedback />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/help"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Help />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ---------- FALLBACK ---------- */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </Router>
+          <Route
+            path="/feedback"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Feedback />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------- FALLBACK ---------- */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
